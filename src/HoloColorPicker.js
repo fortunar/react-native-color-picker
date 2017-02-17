@@ -3,13 +3,14 @@ import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager }
 import tinycolor from 'tinycolor2'
 import { createPanResponder } from './utils'
 
+
 export class HoloColorPicker extends Component {
 
   constructor(props, ctx) {
     super(props, ctx)
     this.state = {
       color: { h: 0, s: 1, v: 1 },
-      pickerSize: null,
+      pickerSize: null
     }
     if (props.oldColor) {
       this.state.color = tinycolor(props.oldColor).toHsv()
@@ -119,12 +120,12 @@ export class HoloColorPicker extends Component {
 
   render() {
     const { pickerSize } = this.state
-    const { oldColor, style } = this.props
+    const { oldColor, style, colorSelectorImageSrc, colorWheelImageSrc, colorChoiceImageSrc } = this.props
     const color = this._getColor()
     const { h, s, v } = color
     const angle = this._hValueToRad(h)
     const selectedColor = tinycolor(color).toHexString()
-    const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString()
+    const indicatorColor = tinycolor({ h, s: 0.5, v: 1 }).toHexString()
     const computed = makeComputedStyles({
       pickerSize,
       selectedColor,
@@ -142,40 +143,36 @@ export class HoloColorPicker extends Component {
               style={[styles.picker, computed.picker]}
               collapsable={false}
             >
+            {colorWheelImageSrc && 
               <Image
-                source={require('../resources/color-circle.png')}
+                source={colorWheelImageSrc}
                 resizeMode='contain'
                 style={[styles.pickerImage]}
               />
-              <View style={[styles.pickerIndicator, computed.pickerIndicator]} />
+            }
+            {colorSelectorImageSrc && 
+              <Image 
+                source={colorSelectorImageSrc}
+                style={[styles.pickerIndicator, computed.indicatorThumb, {backgroundColor: 'transparent'}]}>
+              </Image>
+            }
+            <View style={[styles.pickerIndicator, computed.pickerIndicator]} />
             </View>
-            {oldColor &&
-            <TouchableOpacity
-              style={[styles.selectedPreview, computed.selectedPreview]}
-              onPress={this._onColorSelected}
-              activeOpacity={0.7}
-            />
-            }
-            {oldColor &&
-            <TouchableOpacity
-              style={[styles.originalPreview, computed.originalPreview]}
-              onPress={this._onOldColorSelected}
-              activeOpacity={0.7}
-            />
-            }
-            {!oldColor &&
-            <TouchableOpacity
+            
+            <View
               style={[styles.selectedFullPreview, computed.selectedFullPreview]}
-              onPress={this._onColorSelected}
-              activeOpacity={0.7}
             />
+            {colorChoiceImageSrc &&
+            <Image
+              source={colorChoiceImageSrc}
+              style={[styles.selectedFullPreview, computed.selectedFullPreview, {backgroundColor: 'transparent'}]}/>
             }
+            <TouchableOpacity
+              activeOpacity={0.4}
+              onPress={this._onColorSelected}
+              style={[styles.selectedFullPreview, computed.selectedFullPreview, {backgroundColor: 'transparent'}]}/>
           </View>
           }
-        </View>
-        <View>
-          <Slider value={s} onValueChange={this._onSValueChange} />
-          <Slider value={v} onValueChange={this._onVValueChange} />
         </View>
       </View>
     )
@@ -202,11 +199,12 @@ const makeComputedStyles = ({
   angle,
   pickerSize,
 }) => {
-  const summarySize = 0.5 * pickerSize
+  const summarySize = 0.25 * pickerSize
   const indicatorPickerRatio = 42 / 510 // computed from picker image
-  const indicatorSize = indicatorPickerRatio * pickerSize
+  const indicatorSize = indicatorPickerRatio * pickerSize * 1.2
+  const thumbSize = indicatorPickerRatio * pickerSize * 2.4
   const pickerPadding = indicatorSize / 3
-  const indicatorRadius = pickerSize / 2 - indicatorSize / 2 - pickerPadding
+  const indicatorRadius = pickerSize / 2 - indicatorSize / 1.4 - pickerPadding
   const mx = pickerSize / 2
   const my = pickerSize / 2
   const dx = Math.cos(angle) * indicatorRadius
@@ -224,6 +222,12 @@ const makeComputedStyles = ({
       height: indicatorSize,
       borderRadius: indicatorSize / 2,
       backgroundColor: indicatorColor,
+    },
+    indicatorThumb: {
+      top: mx + dx - thumbSize / 2,
+      left: my + dy - thumbSize / 2,
+      width: thumbSize,
+      height: thumbSize
     },
     selectedPreview: {
       width: summarySize / 2,
@@ -272,9 +276,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowOffset: { width: 3, height: 3 },
     shadowRadius: 4,
-
     // This will elevate the view on Android, causing shadow to be drawn.
-    elevation: 5,
+    // elevation: 5,
   },
   selectedPreview: {
     position: 'absolute',
