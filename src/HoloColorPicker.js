@@ -143,30 +143,25 @@ export class HoloColorPicker extends Component {
               style={[styles.picker, computed.picker]}
               collapsable={false}
             >
-            {colorWheelImageSrc && 
-              <Image
-                source={colorWheelImageSrc}
-                resizeMode='contain'
-                style={[styles.pickerImage]}
-              />
-            }
-            {colorSelectorImageSrc && 
-              <Image 
-                source={colorSelectorImageSrc}
-                style={[styles.pickerIndicator, computed.indicatorThumb, {backgroundColor: 'transparent'}]}>
-              </Image>
-            }
+            
+            <Image
+              source={require('../resources/color_wheel.png')}
+              resizeMode='contain'
+              style={[styles.pickerImage]}
+            />
+            <Image 
+              source={require('../resources/color_selector.png')}
+              style={[styles.pickerIndicator, computed.indicatorThumb, {backgroundColor: 'transparent'}]}>
+            </Image>
             <View style={[styles.pickerIndicator, computed.pickerIndicator]} />
             </View>
             
             <View
               style={[styles.selectedFullPreview, computed.selectedFullPreview]}
             />
-            {colorChoiceImageSrc &&
             <Image
-              source={colorChoiceImageSrc}
+              source={require('../resources/color_choice.png')}
               style={[styles.selectedFullPreview, computed.selectedFullPreview, {backgroundColor: 'transparent'}]}/>
-            }
             <TouchableOpacity
               activeOpacity={0.4}
               onPress={this._onColorSelected}
